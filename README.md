@@ -21,6 +21,7 @@ Before running, ensure you have started ducatuscoind. Run in verbose mode for mo
 
 Transaction intervals are exponentially distributed with a mean rate specified.
 Transaction amounts are uniformly distributed between minimum and either account/address totals or maximum.
+Destination addresses are randomly selected.
 
 Fees spent are left at default (variable, apparently going rate)
 

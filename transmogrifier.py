@@ -1,5 +1,6 @@
 import argparse, subprocess, json, time, random
 parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--poolcutoff", type=int, default=2, help="Don't send new transactions if there are already at least this many in the mempool")
 parser.add_argument("-c", "--count", type=int, default=3, help="The number of wallets to create and use")
 parser.add_argument("-r", "--rate", type=int, default=6, help="The number of transactions to send per hour")
 parser.add_argument("-x", "--max", type=int, default=10, help="The maximum size of transactions to send")
@@ -18,7 +19,6 @@ def gettxnsize(acctmax):
 # Send a transaction
 def sendtxn(acctname, tgtaddr, size):
   print(json.dumps(["transfer", timestr(), acctname, tgtaddr, size]))
-  time.sleep(5) # give em a chance to abort via Ctrl+C
   subprocess.check_output(['ducatuscoin-cli', 'sendfrom', acctname, tgtaddr, str(size)])
   #ducatuscoin-cli sendfrom "" "Lj36yRsnQAPPsHtqJyS1UCPxCf4hTYqkn9" 10
 

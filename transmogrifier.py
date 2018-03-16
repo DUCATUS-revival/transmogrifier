@@ -17,7 +17,11 @@ def gettxnsize(acctmax):
   return random.randrange(round(args.min * 1000), round(min(acctmax, args.max) * 1000)) / 1000.0
 
 # Send a transaction
-def sendtxn(acctname, tgtaddr, size):
+def sendtxn(acctname, tgtaddr, size, poolmax):
+  mempoolinfo = json.loads(subprocess.check_output(['ducatuscoin-cli','getmempoolinfo']))
+  if "size" in mempoolinfo and mempoolinfo["size"] >= poolmax:
+    print(json.dumps(["transferabort", timestr(), acctname, tgtaddr, size]))
+    return
   print(json.dumps(["transfer", timestr(), acctname, tgtaddr, size]))
   subprocess.check_output(['ducatuscoin-cli', 'sendfrom', acctname, tgtaddr, str(size)])
   #ducatuscoin-cli sendfrom "" "Lj36yRsnQAPPsHtqJyS1UCPxCf4hTYqkn9" 10
@@ -83,7 +87,7 @@ while True:
       print(json.dumps(["infoc", timestr(), acctname, "Consolidating account with less than min txn size"]))
       tgtaddr = addrs[acctssorted[i + 1][0]]
       senttxn = True
-      sendtxn(acctname, tgtaddr, acctval)
+      sendtxn(acctname, tgtaddr, acctval, args.poolcutoff)
       break
     numtoskip = i
   if senttxn: #we did it
@@ -97,4 +101,4 @@ while True:
   possibleaddrs = addrs.values()
   possibleaddrs.remove(addrs[sendacct]) #pick a destination that isn't us
   destacct = random.choice(possibleaddrs)
-  sendtxn(sendacct, destacct, gettxnsize(acctval)) #send it
+  sendtxn(sendacct, destacct, gettxnsize(acctval), args.poolcutoff) #send it
